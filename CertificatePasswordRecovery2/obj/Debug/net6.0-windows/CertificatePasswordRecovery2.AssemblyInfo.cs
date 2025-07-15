@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CertificatePasswordRecovery2")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9e9dd850ebedb4f90c830331ba73876e732b1868")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+48996a5e5b9e375bc10bb6006ae2cbe7f122a23c")]
 [assembly: System.Reflection.AssemblyProductAttribute("CertificatePasswordRecovery2")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CertificatePasswordRecovery2")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
