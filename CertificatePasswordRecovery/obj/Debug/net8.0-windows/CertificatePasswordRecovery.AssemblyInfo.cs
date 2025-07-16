@@ -16,7 +16,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyDescriptionAttribute(("Can be used to recover a password for a p12 or pfx file using a brute force metho" +
     "d"))]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1174e0a2487fb67bfc799433aa0cd597fb269e55")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+cf352f4ae383757c197ef9c2279e718ed2f1cc70")]
 [assembly: System.Reflection.AssemblyProductAttribute("CertificatePasswordRecovery")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CertificatePasswordRecovery")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
