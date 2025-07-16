@@ -12,11 +12,11 @@ using System.Reflection;
 
 [assembly: System.Reflection.AssemblyCompanyAttribute("Rion Carter")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
-[assembly: System.Reflection.AssemblyCopyrightAttribute("Copyright © Rion Carter 2012")]
+[assembly: System.Reflection.AssemblyCopyrightAttribute("Copyright © Rion Carter 2012-2025")]
 [assembly: System.Reflection.AssemblyDescriptionAttribute(("Can be used to recover a password for a p12 or pfx file using a brute force metho" +
     "d"))]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+48996a5e5b9e375bc10bb6006ae2cbe7f122a23c")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+86f9e8c811a27479a567a2adafa3eedbefdf46d6")]
 [assembly: System.Reflection.AssemblyProductAttribute("CertificatePasswordRecovery")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CertificatePasswordRecovery")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

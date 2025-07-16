@@ -1,14 +1,15 @@
-using CertificatePasswordRecovery;
+using System;
 using System.Threading;
 using System.Windows.Forms;
 
-//It is unfortunate but we have to set it to Unknown first
-//https://github.com/dotnet/winforms/issues/5071
-Thread.CurrentThread.SetApartmentState(ApartmentState.Unknown);
-Thread.CurrentThread.SetApartmentState(ApartmentState.STA);
+namespace CertificatePasswordRecovery;
 
-Application.SetHighDpiMode(HighDpiMode.SystemAware);
-Application.EnableVisualStyles();
-Application.SetCompatibleTextRenderingDefault(false);
-
-Application.Run(new CertPasswordRecoveryForm());
+internal static class Program
+{
+    [STAThread]
+    static void Main()
+    {
+        ApplicationConfiguration.Initialize(); // Modern WinForms bootstrap (.NET 6+)
+        Application.Run(new CertPasswordRecoveryForm());
+    }
+}
