@@ -157,7 +157,7 @@ partial class CertPasswordRecoveryForm
         logPathBx.Name = "logPathBx";
         logPathBx.Size = new System.Drawing.Size(273, 20);
         logPathBx.TabIndex = 15;
-        logPathBx.Text = "c:\\temp\\CertificatePasswordRecoveryLog.txt";
+        logPathBx.Text = "";
 
         // logLevelLbl
         logLevelLbl.AutoSize = true;

@@ -1,1 +1,160 @@
+# Visual Studio / .NET Core build artifacts
+bin/
+obj/
+out/
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Visual Studio cache/options directory
+.vs/
+.vscode/
+
+# Executables
 *.exe
+*.dll
+*.pdb
+
+# MSTest test Results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+
+# .NET Core
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Files built by Visual Studio
+*.ilk
+*.meta
+*.obj
+*.iobj
+*.pch
+*.ipdb
+*.pgc
+*.pgd
+*.rsp
+*.sbr
+*.tlb
+*.tli
+*.tlh
+*.tmp
+*.tmp_proj
+*_wpftmp.csproj
+*.log
+*.tlog
+*.vspscc
+*.vssscc
+.builds
+*.pidb
+*.svclog
+*.scc
+
+# Visual Studio profiler
+*.psess
+*.vsp
+*.vspx
+*.sap
+
+# ReSharper is a .NET coding add-in
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+# Visual Studio code coverage results
+*.coverage
+*.coveragexml
+
+# Publish Web Output
+*.[Pp]ublish.xml
+*.azurePubxml
+*.pubxml
+*.publishproj
+
+# NuGet Packages
+*.nupkg
+# The packages folder can be ignored because of Package Restore
+**/packages/*
+# except build/, which is used as an MSBuild target.
+!**/packages/build/
+
+# Windows thumbnail cache files
+Thumbs.db
+ehthumbs.db
+
+# Folder config file
+[Dd]esktop.ini
+
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
+
+# Windows shortcuts
+*.lnk
+
+# JetBrains Rider
+.idea/
+*.sln.iml
+
+##
+## Certificate Password Recovery Specific - IMPORTANT FOR SECURITY
+##
+
+# Log files (may contain sensitive password attempts or found passwords)
+*.log
+*Log.txt
+CertificatePasswordRecoveryLog.txt
+CertificatePasswordRecovery*.log
+
+# Test certificate files (NEVER commit these - they may contain private keys)
+*.pfx
+*.p12
+*.cer
+*.crt
+*.key
+*.pem
+
+# Output directory
+Output/
+
+# Temporary test files and directories
+temp/
+tmp/
+test-certs/
+certificates/
+
+# User configuration files that might contain sensitive paths
+*.config
+appsettings.*.json
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# IDE specific files
+.vscode/settings.json
+.vscode/launch.json
+
+# Runtime configuration files
+*.runtimeconfig.json
+*.deps.json

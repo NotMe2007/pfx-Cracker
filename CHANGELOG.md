@@ -20,3 +20,6 @@ Major updates:
 * Updated project configuration for Any CPU and x86 platforms
 * Enhanced code readability and maintainability
 * Verified all resources and settings for modern Windows support
+* **Fixed certificate file browser** - Now shows only certificate files (.pfx, .p12, .cer) by default
+* **Fixed log file access issues** - Applications now use safe default paths and handle permission errors gracefully
+* Created user-friendly build and launch batch files for easy deployment

@@ -22,6 +22,10 @@ public partial class CertPasswordRecoveryForm : Form
         logLevel = logLevelBx.SelectedIndex;
 
         startStringBx.MaxLength = (int)maxGenBx.Value;
+
+        // Set a safe default log path in the user's Documents folder
+        string documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+        logPathBx.Text = Path.Combine(documentsPath, "CertificatePasswordRecoveryLog.txt");
     }
 
     private void maxGenBx_ValueChanged(object? sender, EventArgs e)
@@ -48,7 +52,8 @@ public partial class CertPasswordRecoveryForm : Form
     {
         using var ofd = new OpenFileDialog
         {
-            Filter = "Certificate Files (*.pfx;*.p12)|*.pfx;*.p12|All Files (*.*)|*.*",
+            Filter = "Certificate Files (*.pfx;*.p12;*.cer)|*.pfx;*.p12;*.cer|PFX Files (*.pfx)|*.pfx|P12 Files (*.p12)|*.p12|CER Files (*.cer)|*.cer|All Files (*.*)|*.*",
+            FilterIndex = 1,
             Title = "Select Certificate File"
         };
         if (ofd.ShowDialog() == DialogResult.OK)
@@ -184,8 +189,47 @@ public partial class CertPasswordRecoveryForm : Form
 
     private void Log(string logMessage, string logFile, BigInteger passwordNumber)
     {
-        using var logger = File.AppendText(logFile);
-        logger.WriteLine($"{DateTime.Now}: {logMessage}");
+        try
+        {
+            // Ensure the directory exists
+            string? directory = Path.GetDirectoryName(logFile);
+            if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
+
+            using var logger = File.AppendText(logFile);
+            logger.WriteLine($"{DateTime.Now}: {logMessage}");
+        }
+        catch (UnauthorizedAccessException)
+        {
+            // If we can't write to the specified location, try the user's temp folder
+            try
+            {
+                string tempLogFile = Path.Combine(Path.GetTempPath(), "CertificatePasswordRecoveryLog.txt");
+                using var logger = File.AppendText(tempLogFile);
+                logger.WriteLine($"{DateTime.Now}: {logMessage}");
+                logger.WriteLine($"{DateTime.Now}: Original log path was inaccessible: {logFile}");
+                
+                // Update the UI to show the new log path (invoke required for thread safety)
+                if (logPathBx.InvokeRequired)
+                {
+                    logPathBx.Invoke(() => logPathBx.Text = tempLogFile);
+                }
+                else
+                {
+                    logPathBx.Text = tempLogFile;
+                }
+            }
+            catch
+            {
+                // If all else fails, just ignore logging to prevent crashes
+            }
+        }
+        catch
+        {
+            // For any other exception, just ignore logging to prevent crashes
+        }
     }
 
     private char[] ParseSymbolSequence(string input)

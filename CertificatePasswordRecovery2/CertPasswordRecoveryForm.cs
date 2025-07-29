@@ -54,6 +54,10 @@ namespace CertificatePasswordRecovery
 
             // Set the 'Starting String' max character limit
             startStringBx.MaxLength = (int)maxGenBx.Value;
+
+            // Set a safe default log path in the user's Documents folder
+            string documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            logPathBx.Text = Path.Combine(documentsPath, "CertificatePasswordRecoveryLog.txt");
         }
 
         /// <summary>
@@ -367,21 +371,70 @@ namespace CertificatePasswordRecovery
         /// <param name="LogFile">Location of the Log file in the file system</param>
         private void Log(string logMessage, string LogFile, BigInteger PasswordNumber)
         {
-            using (TextWriter Logger = File.AppendText(LogFile))
+            try
             {
+                // Ensure the directory exists
+                string? directory = Path.GetDirectoryName(LogFile);
+                if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+                {
+                    Directory.CreateDirectory(directory);
+                }
+
+                using (TextWriter Logger = File.AppendText(LogFile))
+                {
                     Logger.WriteLine("Log Entry #{0} : ", PasswordNumber);
                     Logger.WriteLine("{0} {1}", DateTime.Now.ToLongTimeString(),
                         DateTime.Now.ToLongDateString());
                     Logger.WriteLine("  :{0}", logMessage);
                     // Update the Log File
                     Logger.Flush();
+                }
+            }
+            catch (UnauthorizedAccessException)
+            {
+                // If we can't write to the specified location, try the user's temp folder
+                try
+                {
+                    string tempLogFile = Path.Combine(Path.GetTempPath(), "CertificatePasswordRecoveryLog.txt");
+                    using (TextWriter Logger = File.AppendText(tempLogFile))
+                    {
+                        Logger.WriteLine("Log Entry #{0} : ", PasswordNumber);
+                        Logger.WriteLine("{0} {1}", DateTime.Now.ToLongTimeString(),
+                            DateTime.Now.ToLongDateString());
+                        Logger.WriteLine("  :{0}", logMessage);
+                        Logger.WriteLine("  :Original log path was inaccessible: {0}", LogFile);
+                        Logger.Flush();
+                    }
+                    
+                    // Update the UI to show the new log path (invoke required for thread safety)
+                    if (logPathBx.InvokeRequired)
+                    {
+                        logPathBx.Invoke(() => logPathBx.Text = tempLogFile);
+                    }
+                    else
+                    {
+                        logPathBx.Text = tempLogFile;
+                    }
+                }
+                catch
+                {
+                    // If all else fails, just ignore logging to prevent crashes
+                    // The application will continue without logging
+                }
+            }
+            catch
+            {
+                // For any other exception, just ignore logging to prevent crashes
+                // The application will continue without logging
             }
         }
 
         private void certBrowseBtn_Click(object sender, EventArgs e)
         {
             OpenFileDialog certificateBrowser = new OpenFileDialog();
-            certificateBrowser.Title = "Select the PFX / P12 Certificate file";
+            certificateBrowser.Title = "Select the PFX / P12 / CER Certificate file";
+            certificateBrowser.Filter = "Certificate Files (*.pfx;*.p12;*.cer)|*.pfx;*.p12;*.cer|PFX Files (*.pfx)|*.pfx|P12 Files (*.p12)|*.p12|CER Files (*.cer)|*.cer|All Files (*.*)|*.*";
+            certificateBrowser.FilterIndex = 1;
             certificateBrowser.InitialDirectory = @"c:\";
 
             if (certificateBrowser.ShowDialog() == DialogResult.OK)
