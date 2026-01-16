@@ -324,7 +324,7 @@ namespace CertificatePasswordRecovery
         {
             try
             {
-                certificate = new X509Certificate2(CertificatePath, CertificatePassword);
+                certificate = X509CertificateLoader.LoadPkcs12FromFile(CertificatePath, CertificatePassword);
                 
                 // Only log successful crack to a file if the logging is NOT set to 0!
                 //      You may do this if you don't want to have a "paper trail" of your password

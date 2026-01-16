@@ -171,7 +171,7 @@ public partial class CertPasswordRecoveryForm : Form
     {
         try
         {
-            certificate = new X509Certificate2(certificatePath, certificatePassword);
+            certificate = X509CertificateLoader.LoadPkcs12FromFile(certificatePath, certificatePassword);
 
             if (logLevel != 0)
                 Log($"Found Password: {certificatePassword}", logFileLocation, passwordNumber);
