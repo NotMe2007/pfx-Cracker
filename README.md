@@ -19,14 +19,16 @@ This repository contains the following solutions:
     * Around 9-10 times performance improvement
   * See this post for details: [How to recover the private key of a (.pfx) certificate?](https://www.koskila.net/how-to-recover-the-private-key-of-a-pfx-certificate/)
 
-## Latest Updates (2025)
+## Latest Updates (2026)
 
-* Upgraded project to .NET 8.0 for latest performance and security
+* Upgraded project to .NET 10.0 LTS for latest performance, security, and long-term support
+* C# 14 language features enabled with implicit usings
+* Updated GitHub Actions workflows to use latest action versions (checkout v6, setup-dotnet v5, upload-artifact v6)
 * Full cross-compatibility with Windows 10 and Windows 11
-* Modernized codebase to C# 10+ standards (file-scoped namespaces, nullable reference types, etc.)
+* Modernized codebase to C# 14 standards (file-scoped namespaces, nullable reference types, implicit usings, etc.)
 * Cleaned and improved WinForms designer and resource files
 * Added missing event handler stubs for error-free builds
-* Improved solution file for Visual Studio 2022/2025 compatibility
+* Improved solution file for Visual Studio 2022/2026 compatibility
 * Updated project configuration for Any CPU and x86 platforms
 * Enhanced code readability and maintainability
 * Verified all resources and settings for modern Windows support
