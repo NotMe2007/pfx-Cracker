@@ -1,4 +1,6 @@
 @echo off
+setlocal
+pushd "%~dp0" || exit /b 1
 cls
 echo ============================================================================
 echo          Certificate Password Recovery Tool - Build and Run Script
@@ -17,7 +19,9 @@ echo   7. Exit
 echo.
 
 :MENU
+set "choice="
 set /p choice="Please select an option (1-7): "
+if not defined choice goto EXIT
 
 if "%choice%"=="1" goto BUILD_ALL
 if "%choice%"=="2" goto RUN_ORIGINAL
@@ -40,8 +44,8 @@ if %ERRORLEVEL% EQU 0 (
     echo ✓ Build completed successfully!
     echo.
     echo Executable files are located at:
-    echo   - CertificatePasswordRecovery\bin\Release\net8.0-windows\CertificatePasswordRecovery.exe
-    echo   - CertificatePasswordRecovery2\bin\Release\net8.0-windows\CertificatePasswordRecovery2.exe
+    echo   - CertificatePasswordRecovery\bin\Release\net10.0-windows\CertificatePasswordRecovery.exe
+    echo   - CertificatePasswordRecovery2\bin\Release\net10.0-windows\CertificatePasswordRecovery2.exe
     echo.
 ) else (
     echo.
@@ -55,8 +59,8 @@ goto MENU
 echo.
 echo Starting CertificatePasswordRecovery (Original improved version)...
 echo.
-if exist "CertificatePasswordRecovery\bin\Release\net8.0-windows\CertificatePasswordRecovery.exe" (
-    start "" "CertificatePasswordRecovery\bin\Release\net8.0-windows\CertificatePasswordRecovery.exe"
+if exist "CertificatePasswordRecovery\bin\Release\net10.0-windows\CertificatePasswordRecovery.exe" (
+    start "" "CertificatePasswordRecovery\bin\Release\net10.0-windows\CertificatePasswordRecovery.exe"
     echo ✓ Application started successfully!
 ) else (
     echo ✗ Executable not found! Please build the project first (option 1).
@@ -69,8 +73,8 @@ goto MENU
 echo.
 echo Starting CertificatePasswordRecovery2 (Multi-threaded version)...
 echo.
-if exist "CertificatePasswordRecovery2\bin\Release\net8.0-windows\CertificatePasswordRecovery2.exe" (
-    start "" "CertificatePasswordRecovery2\bin\Release\net8.0-windows\CertificatePasswordRecovery2.exe"
+if exist "CertificatePasswordRecovery2\bin\Release\net10.0-windows\CertificatePasswordRecovery2.exe" (
+    start "" "CertificatePasswordRecovery2\bin\Release\net10.0-windows\CertificatePasswordRecovery2.exe"
     echo ✓ Application started successfully!
 ) else (
     echo ✗ Executable not found! Please build the project first (option 1).
@@ -87,7 +91,7 @@ dotnet build CertificatePasswordRecovery\CertificatePasswordRecovery.csproj --co
 if %ERRORLEVEL% EQU 0 (
     echo ✓ Build completed successfully!
     echo Starting application...
-    start "" "CertificatePasswordRecovery\bin\Release\net8.0-windows\CertificatePasswordRecovery.exe"
+    start "" "CertificatePasswordRecovery\bin\Release\net10.0-windows\CertificatePasswordRecovery.exe"
     echo ✓ Application started!
 ) else (
     echo ✗ Build failed! Please check the error messages above.
@@ -104,7 +108,7 @@ dotnet build CertificatePasswordRecovery2\CertificatePasswordRecovery2.csproj --
 if %ERRORLEVEL% EQU 0 (
     echo ✓ Build completed successfully!
     echo Starting application...
-    start "" "CertificatePasswordRecovery2\bin\Release\net8.0-windows\CertificatePasswordRecovery2.exe"
+    start "" "CertificatePasswordRecovery2\bin\Release\net10.0-windows\CertificatePasswordRecovery2.exe"
     echo ✓ Application started!
 ) else (
     echo ✗ Build failed! Please check the error messages above.
@@ -131,4 +135,6 @@ goto MENU
 echo.
 echo Thank you for using the Certificate Password Recovery Tool!
 echo.
+popd
+endlocal
 exit /b 0

@@ -4,7 +4,7 @@
 This repository contains two versions of a certificate password recovery tool that can brute-force passwords for .pfx and .p12 certificate files.
 
 ## Project Status ✅
-- **Framework**: .NET 8.0 (Latest)
+- **Framework**: .NET 10.0 (Latest)
 - **Compatibility**: Windows 10 and Windows 11
 - **Build Status**: Ready to use (both projects compile successfully)
 - **Code Quality**: Modernized with C# 10+ standards
@@ -12,12 +12,12 @@ This repository contains two versions of a certificate password recovery tool th
 ## Available Tools
 
 ### 1. CertificatePasswordRecovery (Original Improved)
-- **Location**: `CertificatePasswordRecovery\bin\Release\net8.0-windows\CertificatePasswordRecovery.exe`
-- **Features**: Single-threaded brute force with modern .NET 8 improvements
+- **Location**: `CertificatePasswordRecovery\bin\Release\net10.0-windows\CertificatePasswordRecovery.exe`
+- **Features**: Single-threaded brute force with modern .NET 10 improvements
 - **Best for**: Simple password recovery tasks
 
 ### 2. CertificatePasswordRecovery2 (Multi-threaded) ⭐ **Recommended**
-- **Location**: `CertificatePasswordRecovery2\bin\Release\net8.0-windows\CertificatePasswordRecovery2.exe`
+- **Location**: `CertificatePasswordRecovery2\bin\Release\net10.0-windows\CertificatePasswordRecovery2.exe`
 - **Features**: Multi-threaded, ~9-10x faster performance
 - **Best for**: Complex password recovery tasks (recommended for most users)
 
@@ -35,8 +35,8 @@ This repository contains two versions of a certificate password recovery tool th
 
 ### Manual Execution
 You can also run the executables directly:
-- `CertificatePasswordRecovery\bin\Release\net8.0-windows\CertificatePasswordRecovery.exe`
-- `CertificatePasswordRecovery2\bin\Release\net8.0-windows\CertificatePasswordRecovery2.exe`
+- `CertificatePasswordRecovery\bin\Release\net10.0-windows\CertificatePasswordRecovery.exe`
+- `CertificatePasswordRecovery2\bin\Release\net10.0-windows\CertificatePasswordRecovery2.exe`
 
 ## Application Features
 
@@ -56,7 +56,7 @@ You can also run the executables directly:
 
 ## Requirements
 - **Operating System**: Windows 10 or Windows 11
-- **.NET Runtime**: .NET 8.0 Desktop Runtime (usually pre-installed)
+- **.NET Runtime**: .NET 10.0 Desktop Runtime (usually pre-installed)
 - **RAM**: Minimum 4GB recommended for multi-threaded version
 - **CPU**: Multi-core processor recommended for version 2
 
@@ -73,10 +73,10 @@ You can also run the executables directly:
 
 ### "Executable not found" Error
 - Run `Build-and-Run.bat` and select option 1 to build the projects
-- Ensure .NET 8.0 SDK is installed
+- Ensure .NET 10.0 SDK is installed
 
 ### Application Won't Start
-- Ensure .NET 8.0 Desktop Runtime is installed
+- Ensure .NET 10.0 Desktop Runtime is installed
 - Check Windows compatibility (Windows 10/11 required)
 - Run as administrator if needed
 
@@ -86,7 +86,7 @@ You can also run the executables directly:
 - No more crashes due to log file permission issues
 
 ### Build Errors
-- Verify .NET 8.0 SDK is installed
+- Verify .NET 10.0 SDK is installed
 - Check that all source files are present
 - Use `Build-and-Run.bat` option 6 to clean and rebuild
 
@@ -101,4 +101,4 @@ For issues or questions:
 - Try different character sequences or starting strings
 
 ---
-**Last Updated**: 2025 - Updated to .NET 8.0 with Windows 10/11 compatibility
+**Last Updated**: 2026 - Updated to .NET 10.0 with Windows 10/11 compatibility
