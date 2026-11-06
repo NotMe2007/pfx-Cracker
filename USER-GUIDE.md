@@ -1,104 +1,94 @@
-# Certificate Password Recovery Tool - User Guide
+# Recovering a certificate password
 
-## Overview
-This repository contains two versions of a certificate password recovery tool that can brute-force passwords for .pfx and .p12 certificate files.
+## Open the app
 
-## Project Status ✅
-- **Framework**: .NET 10.0 (Latest)
-- **Compatibility**: Windows 10 and Windows 11
-- **Build Status**: Ready to use (both projects compile successfully)
-- **Code Quality**: Modernized with C# 10+ standards
+On Windows 10/11, install the .NET 10 SDK to build, or the .NET 10 Desktop Runtime
+to run an existing build.
 
-## Available Tools
+1. Double-click `Build-and-Run.bat`.
+2. Choose **5** to build and open the multithreaded version.
+3. After building, you can use `Quick-Launch.bat`, option **2**.
 
-### 1. CertificatePasswordRecovery (Original Improved)
-- **Location**: `CertificatePasswordRecovery\bin\Release\net10.0-windows\CertificatePasswordRecovery.exe`
-- **Features**: Single-threaded brute force with modern .NET 10 improvements
-- **Best for**: Simple password recovery tasks
+## 1. Choose your certificate
 
-### 2. CertificatePasswordRecovery2 (Multi-threaded) ⭐ **Recommended**
-- **Location**: `CertificatePasswordRecovery2\bin\Release\net10.0-windows\CertificatePasswordRecovery2.exe`
-- **Features**: Multi-threaded, ~9-10x faster performance
-- **Best for**: Complex password recovery tasks (recommended for most users)
+Click **Browse files…** and select your `.pfx` or `.p12` file.
+The app reads it into RAM once per search. It does not upload or modify the file.
 
-## How to Use
+## 2. Choose how to search
 
-### Quick Start (Recommended)
-1. Double-click **`Quick-Launch.bat`**
-2. Choose version 2 (multi-threaded) for best performance
-3. The application will open with a user-friendly interface
+### Try passwords I remember
 
-### Build and Development
-1. Double-click **`Build-and-Run.bat`** for full build options
-2. Choose option 1 to build both projects
-3. Use options 2-5 to run specific versions
+This is the best place to start when a password might be long. Enter possible
+passwords, company names, product names, or other words you remember, one per line.
 
-### Manual Execution
-You can also run the executables directly:
-- `CertificatePasswordRecovery\bin\Release\net10.0-windows\CertificatePasswordRecovery.exe`
-- `CertificatePasswordRecovery2\bin\Release\net10.0-windows\CertificatePasswordRecovery2.exe`
+With **Also try capitals…** enabled, the app tries:
 
-## Application Features
+- Each exact entry, lowercase, uppercase, and a capitalized first letter.
+- Those forms followed by a number from 0 to 99.
+- Those forms followed by a year from 1990 through the current year.
+- Those forms followed by `!`, `123`, or `1234`.
 
-### User Interface
-- **Certificate Path**: Browse and select your .pfx, .p12, or .cer file (file browser now filters to show only certificate files)
-- **Starting String**: Optional known prefix for faster recovery
-- **Prefix/Suffix**: Add known parts of the password
-- **Max Generated Characters**: Set password length limit
-- **Symbol Sequence**: Customize character set for brute force
-- **Logging**: Track progress and results
+These are simple variations, not every possible combination of your clues.
+For example, to try a two-word phrase, enter the phrase as its own line. Spaces
+are preserved. To test only exact passwords, turn the variations checkbox off.
+Your entered clues are not saved.
 
-### Logging Options
-- **Off**: No logging
-- **Success Only**: Log only when password is found
-- **Every 10,000 + Success**: Log progress every 10,000 attempts
-- **Everything**: Log all attempts (generates large files)
+### Search by length and characters
 
-## Requirements
-- **Operating System**: Windows 10 or Windows 11
-- **.NET Runtime**: .NET 10.0 Desktop Runtime (usually pre-installed)
-- **RAM**: Minimum 4GB recommended for multi-threaded version
-- **CPU**: Multi-core processor recommended for version 2
+Use this when you know the unknown part is short. Choose numbers, lowercase
+letters, letters and numbers, or custom characters. For custom characters, type
+them directly: `abc123!` — do not add separating commas. A comma or space you
+type is treated as a possible password character.
 
-## Performance Notes
-- **Version 2 is significantly faster** due to multi-threading
-- Password recovery time depends on:
-  - Password complexity
-  - Password length
-  - Starting string accuracy
-  - CPU performance
-- **Warning**: Brute force password recovery can be very time-consuming
+Choose the shortest and longest possible lengths. All lengths in the range are
+searched, shortest first. Character positions are not trimmed.
+
+The app shows how many combinations this creates. Large ranges can take far
+longer than a lifetime. A maximum of 31 characters does not make a 31-character
+password practical to find by exhaustive search; remembered words and patterns
+are much more useful.
+
+### More options
+
+- **Known beginning / ending:** Add these around every guess. In length mode,
+  the length range refers only to the unknown middle.
+- **CPU workers:** The multithreaded app defaults to half the logical processors
+  to leave some capacity for other work. More workers may be faster but can make
+  the computer less responsive. The original app defaults to one worker.
+- **Save a log:** Off by default. Logs can contain attempted and recovered
+  passwords. If enabled, select where to save them. Every-guess logging is
+  slower and can produce very large files.
+
+GPU acceleration is not included in this version.
+
+## 3. Start and follow progress
+
+Click **Start recovery**. The panel shows completed guesses, average speed,
+elapsed time, and an estimate for checking the remaining search space.
+The estimate is not a promise of when a password will be found.
+
+- **Password found:** Use **Show password** or **Copy password**.
+- **No match in this search:** Try different clues or settings. This means only
+  that the selected guesses did not work.
+- **Stop:** Waits for active checks to finish, flushes any enabled log, and
+  unlocks the settings. Starting again begins a new search; there is no saved
+  resume point. Closing the window also stops the run safely.
+
+Logs use a bounded buffer. They flush on a successful match, at most about a
+second between active log writes, and when a run ends. A crash or power loss can
+lose recent buffered entries. A log failure does not stop recovery; the app
+reports it after the run.
 
 ## Troubleshooting
 
-### "Executable not found" Error
-- Run `Build-and-Run.bat` and select option 1 to build the projects
-- Ensure .NET 10.0 SDK is installed
+- **Check your settings:** Read the explanation in the progress panel. Select a
+  file and supply at least one clue, or a valid length range and character set.
+- **Could not complete the search:** Check the file is a valid PFX/P12, readable,
+  and within the .NET certificate loader's limits.
+- **Slow search:** Turn off every-guess logging, close competing CPU-heavy jobs,
+  and narrow the search. An unfamiliar PFX may use a much more expensive password
+  derivation function than another PFX.
+- **Executable not found:** Build first. Executables are in each project's
+  `bin\Release\net10.0-windows` directory.
 
-### Application Won't Start
-- Ensure .NET 10.0 Desktop Runtime is installed
-- Check Windows compatibility (Windows 10/11 required)
-- Run as administrator if needed
-
-### Log File Access Issues ✅ **FIXED**
-- Applications now automatically use safe default log paths (Documents folder)
-- If log path is inaccessible, applications automatically fall back to temp folder
-- No more crashes due to log file permission issues
-
-### Build Errors
-- Verify .NET 10.0 SDK is installed
-- Check that all source files are present
-- Use `Build-and-Run.bat` option 6 to clean and rebuild
-
-## Legal Notice
-This tool is for legitimate password recovery purposes only. Users are responsible for ensuring they have proper authorization to recover passwords for certificates they do not own.
-
-## Support
-For issues or questions:
-- Check the error messages in the application
-- Review the log files if logging is enabled
-- Ensure certificate file is not corrupted
-- Try different character sequences or starting strings
-
----
-**Last Updated**: 2026 - Updated to .NET 10.0 with Windows 10/11 compatibility
+See CONTRIBUTING.md for tests and PERFORMANCE.md for benchmark details.

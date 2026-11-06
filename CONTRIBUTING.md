@@ -27,3 +27,20 @@ simultaneous successes, cancellation, exception propagation, serialized logging,
 and both WinForms lifecycles with cross-thread checks enabled. Certificates are
 generated temporarily for tests and deleted afterward. Never use real certificates
 or commit password logs; see SECURITY.md.
+
+## Performance measurements
+
+Run the bounded benchmark with a generated temporary certificate:
+
+```powershell
+dotnet run --project Recovery.Benchmarks --configuration Release
+```
+
+For a local certificate that its owner has explicitly authorized for testing,
+append `-- "C:\path\to\certificate.pfx"`. This bypasses the default synthetic-only
+test policy only for that authorized file. The benchmark checks a random
+candidate repeatedly; it does not attempt a dictionary or exhaustive recovery.
+It compares file-backed and RAM-backed checks through the same runner, uses
+short bounded samples, and prints throughput rather than passwords or file data.
+Close other recovery runs for a meaningful comparison. Never commit the
+certificate, its contents, or logs of real guesses.

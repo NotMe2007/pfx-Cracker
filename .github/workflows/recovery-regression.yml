@@ -17,3 +17,5 @@ jobs:
         run: dotnet build CertificatePasswordRecovery.sln --configuration ${{ matrix.configuration }}
       - name: Run recovery and form lifecycle regression checks
         run: dotnet run --project Recovery.Tests --configuration ${{ matrix.configuration }}
+      - name: Build the benchmark harness
+        run: dotnet build Recovery.Benchmarks --configuration ${{ matrix.configuration }}

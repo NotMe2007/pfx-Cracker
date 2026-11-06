@@ -21,6 +21,7 @@ internal static class Program
         Run("cancellation joins workers", Cancellation);
         Run("worker errors propagate", Errors);
         Run("rejects invalid inputs", Validation);
+        Run("length ranges and remembered-password variations", SearchModes);
         Run("synthetic certificate and serialized file logging", Certificate);
         Console.WriteLine("All regression checks passed.");
     }
@@ -143,12 +144,45 @@ internal static class Program
         return Task.CompletedTask;
     }
 
+    private static Task SearchModes()
+    {
+        var range = Options with { MinimumLength = 1, Length = 3 };
+        var candidates = RecoveryRunner.Candidates(range, default).ToArray();
+        Check(candidates.Length == 14 && candidates.Select(c => c.Password).Distinct().Count() == 14,
+            "Length range skipped or duplicated guesses.");
+        Check(candidates.Select(c => c.Number).SequenceEqual(Enumerable.Range(0, 14).Select(i => (BigInteger)i)),
+            "Range numbering reset between lengths.");
+        Check(RecoveryRunner.TotalCandidates(range) == candidates.Length, "Wrong range estimate.");
+        var words = Options with { WordMode = true, RememberedPasswords = "gasket\r\nOil Filter\n", CommonEndings = true };
+        var variants = RecoveryRunner.Candidates(words, default).Select(a => a.Password).ToArray();
+        Check(variants.Contains("Gasket2021") && variants.Contains("Oil Filter") && variants.Contains("GASKET99"),
+            "Remembered word variations are missing.");
+        Check(variants.Distinct().Count() == variants.Length, "Duplicate capitalization variants.");
+        Check(RecoveryRunner.TotalCandidates(words) == variants.Length, "Wrong word search estimate.");
+        var exact = words with { CommonEndings = false, RememberedPasswords = "  keep spaces  \nMixedCase" };
+        Check(RecoveryRunner.Candidates(exact, default).Select(a => a.Password).SequenceEqual(new[] { "  keep spaces  ", "MixedCase" }),
+            "Exact remembered passwords were changed.");
+        using var cancellation = new CancellationTokenSource();
+        cancellation.Cancel();
+        try { RecoveryRunner.Candidates(words, cancellation.Token).First(); throw new Exception("Word search ignored cancellation."); }
+        catch (OperationCanceledException) { }
+        return Task.CompletedTask;
+    }
+
     private static async Task Certificate()
     {
         string directory = Path.Combine(Path.GetTempPath(), "pfx-recovery-test-" + Guid.NewGuid());
         Directory.CreateDirectory(directory);
         try
         {
+            string invalidPath = Path.Combine(directory, "invalid.pfx");
+            File.WriteAllText(invalidPath, "This is not a certificate.");
+            try
+            {
+                using var invalid = new RecoverySession(Options with { CertificatePath = invalidPath });
+                throw new Exception("Invalid certificate accepted.");
+            }
+            catch (Exception error) when (error is CryptographicException or InvalidDataException) { }
             using var key = RSA.Create(2048);
             var request = new CertificateRequest("CN=Recovery regression test", key,
                 HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
@@ -160,18 +194,37 @@ internal static class Program
             var session = new RecoverySession(options);
             Check(await RecoveryRunner.RunAsync(options, session.TestPassword, session.LogAttempt, 4, default)
                 == "bbb", "Could not recover synthetic password.");
-            Check(File.ReadAllLines(options.LogPath).Count(line => line.Contains("Found Password:")) == 1,
-                "Success log missing or duplicated.");
+            using (var reader = new StreamReader(new FileStream(options.LogPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)))
+                Check(reader.ReadToEnd().Split("Found Password:").Length == 2,
+                    "Success was not flushed immediately, or was logged twice.");
+            session.Dispose();
             File.Delete(options.LogPath);
             options = options with { Symbols = "cd" };
             session = new RecoverySession(options);
             Check(await RecoveryRunner.RunAsync(options, session.TestPassword, session.LogAttempt, 4, default)
                 == null, "Incorrect password accepted.");
+            session.Dispose();
             Check(File.ReadAllLines(options.LogPath).Length == 8, "Concurrent log entries were lost.");
+
+            using (var cached = new RecoverySession(options with { LogLevel = 0 }))
+            {
+                string moved = Path.Combine(directory, "moved.pfx");
+                File.Move(options.CertificatePath, moved);
+                try { Check(cached.TestPassword(new PasswordAttempt("bbb", 0)), "Session reread the file instead of cached bytes."); }
+                finally { File.Move(moved, options.CertificatePath); }
+            }
+            using (var failedLog = new RecoverySession(options with { LogPath = directory, LogLevel = 3 }))
+            {
+                Check(await RecoveryRunner.RunAsync(options with { Symbols = "ab" }, failedLog.TestPassword,
+                    failedLog.LogAttempt, 2, default) == "bbb", "Log failure prevented recovery.");
+                Check(failedLog.LogWarning != null, "Log failure was hidden.");
+            }
 
             // UI lifecycle checks run on a dedicated STA thread with an actual message loop.
             UiLifecycle(() => new Original::CertificatePasswordRecovery.CertPasswordRecoveryForm(), options.CertificatePath);
             UiLifecycle(() => new Modern::CertificatePasswordRecovery.CertPasswordRecoveryForm(), options.CertificatePath);
+            UiSearchWorkflow(() => new Original::CertificatePasswordRecovery.CertPasswordRecoveryForm(), options.CertificatePath);
+            UiSearchWorkflow(() => new Modern::CertificatePasswordRecovery.CertPasswordRecoveryForm(), options.CertificatePath);
         }
         finally { Directory.Delete(directory, true); }
     }
@@ -194,7 +247,9 @@ internal static class Program
                     try
                     {
                         ((TextBox)Field("pathToCertBx")).Text = certificatePath;
-                        ((TextBox)Field("symbolSequenceBx")).Text = "c,d";
+                        ((ComboBox)Field("modeBx")).SelectedIndex = 1;
+                        ((ComboBox)Field("charactersBx")).SelectedIndex = 3;
+                        ((TextBox)Field("symbolSequenceBx")).Text = "cd";
                         ((NumericUpDown)Field("maxGenBx")).Value = 20;
                         ((ComboBox)Field("logLevelBx")).SelectedIndex = 0;
                         var start = type.GetMethod("recoverPasswordBtn_Click", BindingFlags.Instance | BindingFlags.NonPublic)!;
@@ -218,5 +273,87 @@ internal static class Program
         thread.Start();
         Check(thread.Join(TimeSpan.FromSeconds(20)), "Form did not close after cancellation.");
         if (failure != null) throw new Exception("UI lifecycle regression.", failure);
+    }
+
+    private static void UiSearchWorkflow(Func<Form> create, string certificatePath)
+    {
+        Exception? failure = null;
+        var thread = new Thread(() =>
+        {
+            try
+            {
+                using var form = create();
+                form.ShowInTaskbar = false;
+                form.Opacity = 0;
+                var type = form.GetType();
+                object? Field(string name) => type.GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(form);
+                void Start() => type.GetMethod("recoverPasswordBtn_Click", BindingFlags.Instance | BindingFlags.NonPublic)!
+                    .Invoke(form, new object?[] { form, EventArgs.Empty });
+                var clock = System.Diagnostics.Stopwatch.StartNew();
+                using var timer = new System.Windows.Forms.Timer { Interval = 25 };
+                int stage = 0;
+                timer.Tick += (_, _) =>
+                {
+                    try
+                    {
+                        if (clock.Elapsed > TimeSpan.FromSeconds(15)) throw new Exception("UI search timed out.");
+                        if (Field("recoveryCancellation") != null) return;
+                        string status = ((Label)Field("statusLbl")!).Text;
+                        var remembered = (TextBox)Field("rememberedBx")!;
+                        switch (stage++)
+                        {
+                            case 0:
+                                Check(((ComboBox)Field("logLevelBx")!).SelectedIndex == 0, "Logging is not off by default.");
+                                remembered.Text = "ccc";
+                                ((CheckBox)Field("variationsBx")!).Checked = false;
+                                Start();
+                                Check(Field("recoveryCancellation") == null && ((Label)Field("statusLbl")!).Text == "Check your settings",
+                                    "Missing file was not rejected inline.");
+                                ((TextBox)Field("pathToCertBx")!).Text = certificatePath;
+                                Start();
+                                break;
+                            case 1:
+                                Check(status == "No match in this search", "No-match state missing.");
+                                Check(((Button)Field("recoverPasswordBtn")!).Enabled, "Start not restored after exhaustion.");
+                                remembered.Text = "bbb";
+                                Start();
+                                break;
+                            case 2:
+                                Check(status == "Password found" && ((TextBox)Field("resultBx")!).Text == "bbb", "Success result missing.");
+                                Check(((TextBox)Field("resultBx")!).UseSystemPasswordChar, "Result was not masked.");
+                                ((ComboBox)Field("modeBx")!).SelectedIndex = 1;
+                                ((ComboBox)Field("charactersBx")!).SelectedIndex = 3;
+                                ((TextBox)Field("symbolSequenceBx")!).Text = "cd";
+                                ((NumericUpDown)Field("minGenBx")!).Value = 20;
+                                ((NumericUpDown)Field("maxGenBx")!).Value = 20;
+                                Start();
+                                type.GetMethod("StopRecovery", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(form, null);
+                                break;
+                            case 3:
+                                Check(status == "Stopped", "Stop did not return to a usable state.");
+                                Check(((Button)Field("recoverPasswordBtn")!).Enabled && !((Button)Field("stopBtn")!).Enabled,
+                                    "Buttons not restored after Stop.");
+                                ((ComboBox)Field("modeBx")!).SelectedIndex = 0;
+                                remembered.Text = "bbb";
+                                Start();
+                                break;
+                            case 4:
+                                Check(status == "Password found", "Restart after cancellation failed.");
+                                timer.Stop();
+                                form.Close();
+                                break;
+                        }
+                    }
+                    catch (Exception error) { failure = error; timer.Stop(); form.Close(); }
+                };
+                form.Shown += (_, _) => timer.Start();
+                Application.Run(form);
+            }
+            catch (Exception error) { failure = error; }
+        }) { IsBackground = true };
+        thread.SetApartmentState(ApartmentState.STA);
+        thread.Start();
+        Check(thread.Join(TimeSpan.FromSeconds(20)), "UI workflow did not finish.");
+        if (failure != null) throw new Exception("UI search workflow regression.", failure);
     }
 }

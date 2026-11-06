@@ -21,6 +21,13 @@ This repository contains the following solutions:
 
 ## Latest Updates (2026)
 
+* Guided interface with remembered-password and length-range searches
+* Live speed, attempt count, elapsed time, remaining-search estimate, and Stop
+* Certificate loaded once into RAM; bounded buffered logging (off by default)
+* Awaited bounded workers, cancellation, and regression tests for both apps
+* CPU-only processing; GPU acceleration is not included
+* See [USER-GUIDE.md](USER-GUIDE.md) and [PERFORMANCE.md](PERFORMANCE.md)
+
 * Upgraded project to .NET 10.0 LTS for latest performance, security, and long-term support
 * C# 14 language features enabled with implicit usings
 * Updated GitHub Actions workflows to use latest action versions (checkout v6, setup-dotnet v5, upload-artifact v6)
@@ -41,4 +48,4 @@ This repository contains the following solutions:
 ## Original author
 
 * https://github.com/boredwookie
-* https://7thzero.com/ 
+* https://7thzero.com/
