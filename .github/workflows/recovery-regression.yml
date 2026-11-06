@@ -1,0 +1,19 @@
+name: Recovery regression checks
+
+on: [push, pull_request]
+
+jobs:
+  recovery:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        configuration: [Debug, Release]
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+      - name: Build both applications
+        run: dotnet build CertificatePasswordRecovery.sln --configuration ${{ matrix.configuration }}
+      - name: Run recovery and form lifecycle regression checks
+        run: dotnet run --project Recovery.Tests --configuration ${{ matrix.configuration }}
